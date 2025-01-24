@@ -1,95 +1,103 @@
-import Image from "next/image";
+'use client'
+
 import styles from "./page.module.css";
+import data from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
+import { useState, useRef, useEffect } from "react";
+
+import database from "./firebase";
+import { ref, set, push, query, onValue, limitToLast, orderByChild } from "firebase/database";
 
 export default function Home() {
+
+  const [currentUser, setCurrentUser] = useState("");
+
+  const [message, setMessage] = useState("")
+  const [showPicker, setShowPicker] = useState(false);
+
+  const [messages, setMessages] = useState([]);
+  const messagesEndRef = useRef(null);
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      if (message.trim()) {
+
+        const messagesRef = ref(database, 'messages');
+        push(messagesRef, { text: message, sender: currentUser, timestamp: Date.now() });
+        setMessage("");
+
+        // const messagesRef = ref(database, `messages/${currentUser}`);
+        // set(messagesRef, { 
+        //   text: message, 
+        //   sender: currentUser, 
+        //   timestamp: Date.now() 
+        // });
+        // setMessage("");
+      }
+    }
+  }
+
+  const handleInputChange = (e) => {
+    setMessage(e.target.value);
+  };
+
+  const hanldeEmojiSelect = (e) => {
+    let emoji = e.native;
+    setMessage(message + emoji);
+  }
+
+  useEffect(() => {
+    const userCookie = document.cookie.split('; ').find((row) => row.startsWith('hcuser='))?.split('=')[1];
+    userCookie && setCurrentUser(userCookie)
+  }, []);
+
+  useEffect(() => {
+    const messagesRef = ref(database, 'messages');
+    const messagesQuery = query(messagesRef, orderByChild('timestamp'), limitToLast(20));
+
+    onValue(messagesQuery, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const chatMessages = Object.values(data);
+        setMessages(chatMessages);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+
   return (
     <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+      <div className="main">
+        <div className="messages px-3 py-2">
+          {messages.map((msg, index) => (
+            <div
+              key={index}
+              className={`message mt-3 ${msg.sender === currentUser ? 'me text-end' : ''}`}
+            >
+              <div className={`message-text d-inline-block shadow py-1 px-3 rounded-pill ${msg.sender === currentUser ? 'text-light bg-primary opacity-50' : ''}`}>
+                {msg.text}
+              </div>
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <div className="chatbox">
+          <div className="chatbox-top"></div>
+          <div className="chatbox-bottom mt-3">
+            <div className="position-relative">
+                <input type="text" className="form-control rounded-pill input-message" placeholder="" spellCheck="false" value={message} onChange={handleInputChange} onKeyDown={handleKeyDown}/>
+                <i className={'bi '+(showPicker ? 'bi-x-circle' : 'bi-emoji-smile' )+' position-absolute emoji-toggle'} onClick={() => setShowPicker(!showPicker)}></i>
+            </div>
+            {showPicker && (
+              <Picker data={data} onEmojiSelect={hanldeEmojiSelect} />
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
