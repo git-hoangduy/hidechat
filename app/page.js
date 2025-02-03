@@ -40,9 +40,11 @@ export default function Home() {
   }
 
   const handleSendMessage = (e) => {
-    const messagesRef = ref(database, 'messages');
-    push(messagesRef, { text: message, sender: currentUser, timestamp: Date.now() });
-    setMessage("");
+    if (message.trim()) {
+      const messagesRef = ref(database, 'messages');
+      push(messagesRef, { text: message, sender: currentUser, timestamp: Date.now() });
+      setMessage("");
+    }
   }
 
   const handleInputChange = (e) => {
@@ -112,14 +114,14 @@ export default function Home() {
           <div className="chatbox-top"></div>
           <div className="chatbox-bottom mt-3">
             <div className="row">
-              <div className="col-11 col-md-12">
+              <div className="col-10 col-md-12">
                 <div className="position-relative">
                     <input type="text" className="form-control rounded-pill input-message" placeholder="" spellCheck="false" value={message} onChange={handleInputChange} onKeyDown={handleKeyDown}/>
                     <i className={'bi '+(showPicker ? 'bi-x-circle' : 'bi-emoji-smile' )+' position-absolute emoji-toggle'} onClick={() => setShowPicker(!showPicker)}></i>
                 </div>
               </div>
-              <div className="col-1 px-0 d-md-none">
-                <button className="btn text-center w-100 h-100 send-message" onClick={handleSendMessage}>
+              <div className="col-2 px-0 d-md-none">
+                <button className="text-center h-100 send-message" onClick={handleSendMessage}>
                   <i className="bi bi-send"></i>
                 </button>
               </div>
