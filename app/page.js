@@ -18,6 +18,8 @@ export default function Home() {
   const [messages, setMessages] = useState([]);
   const messagesEndRef = useRef(null);
 
+  const pickerRef = useRef(null);
+
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       if (message.trim()) {
@@ -35,6 +37,12 @@ export default function Home() {
         // setMessage("");
       }
     }
+  }
+
+  const handleSendMessage = (e) => {
+    const messagesRef = ref(database, 'messages');
+    push(messagesRef, { text: message, sender: currentUser, timestamp: Date.now() });
+    setMessage("");
   }
 
   const handleInputChange = (e) => {
@@ -68,6 +76,21 @@ export default function Home() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const isToggleButton = event.target.closest('.emoji-toggle');
+      console.log(isToggleButton)
+      if (pickerRef.current && !pickerRef.current.contains(event.target) && !isToggleButton) {
+        setShowPicker(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
 
   return (
     <div className={styles.page}>
@@ -78,7 +101,7 @@ export default function Home() {
               key={index}
               className={`message mt-3 ${msg.sender === currentUser ? 'me text-end' : ''}`}
             >
-              <div className={`message-text d-inline-block shadow py-1 px-3 rounded-pill ${msg.sender === currentUser ? 'text-light bg-primary opacity-50' : ''}`}>
+              <div className={`message-text d-inline-block shadow py-1 px-3 rounded-pill ${msg.sender === currentUser ? 'text-light bg-primary' : ''}`}>
                 {msg.text}
               </div>
             </div>
@@ -88,12 +111,23 @@ export default function Home() {
         <div className="chatbox">
           <div className="chatbox-top"></div>
           <div className="chatbox-bottom mt-3">
-            <div className="position-relative">
-                <input type="text" className="form-control rounded-pill input-message" placeholder="" spellCheck="false" value={message} onChange={handleInputChange} onKeyDown={handleKeyDown}/>
-                <i className={'bi '+(showPicker ? 'bi-x-circle' : 'bi-emoji-smile' )+' position-absolute emoji-toggle'} onClick={() => setShowPicker(!showPicker)}></i>
+            <div className="row">
+              <div className="col-11 col-md-12">
+                <div className="position-relative">
+                    <input type="text" className="form-control rounded-pill input-message" placeholder="" spellCheck="false" value={message} onChange={handleInputChange} onKeyDown={handleKeyDown}/>
+                    <i className={'bi '+(showPicker ? 'bi-x-circle' : 'bi-emoji-smile' )+' position-absolute emoji-toggle'} onClick={() => setShowPicker(!showPicker)}></i>
+                </div>
+              </div>
+              <div className="col-1 px-0 d-md-none">
+                <button className="btn text-center w-100 h-100 send-message" onClick={handleSendMessage}>
+                  <i className="bi bi-send"></i>
+                </button>
+              </div>
             </div>
             {showPicker && (
-              <Picker data={data} onEmojiSelect={hanldeEmojiSelect} />
+              <div ref={pickerRef} className="picker-style-custom">
+                <Picker data={data} onEmojiSelect={hanldeEmojiSelect} />
+              </div>
             )}
           </div>
         </div>

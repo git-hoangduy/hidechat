@@ -1,12 +1,12 @@
 .main {
   max-width: 480px;
   margin: 0 auto;
-  height: 100vh;
+  height: 100dvh;
   padding-left: 10px;
   padding-right: 10px;
 }
 .main .messages{
-  height: calc(100vh - 80px);
+  height: calc(100dvh - 80px);
   overflow-y: auto;
 }
 .main .chatbox{
@@ -31,9 +31,15 @@
   color: #9c9c9c;
   cursor: pointer;
 }
+.send-message i{
+  font-size: 24px;
+  color: #9c9c9c;
+  cursor: pointer;
+}
 em-emoji-picker{
   position: absolute;
   bottom: 90px;
+  box-shadow: rgba(67, 71, 85, 0.27) 0px 0px 0.25em, rgba(90, 125, 188, 0.05) 0px 0.25em 1em;
 }
 
 /* scrollbar  */
