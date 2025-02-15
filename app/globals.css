@@ -1,35 +1,44 @@
+/* *{
+  opacity: 0.9;
+} */
 .main {
   max-width: 480px;
   margin: 0 auto;
   height: 100dvh;
-  padding-left: 10px;
-  padding-right: 10px;
+  /* padding-left: 10px;
+  padding-right: 10px; */
 }
+
 .main .messages{
   height: calc(100dvh - 80px);
   overflow-y: auto;
 }
 .main .chatbox{
   height: 80px;
+  /* border-top: 1px solid #f1f1f1; */
 }
+.main .message{
+  
+}
+.main .message-text{
+  color: #444;
+  /* color: #ddd; */
+  background-color: #fff;
+}
+/* .main .me .message-text{
+  color: #fff;
+  background-color: rgb(41, 52, 212);
+} */
+.main .messages .message-time{
+  font-size: 11px;
+  color: #9c9c9c;
+}
+
 .input-message{
   padding-left: 40px;
-  /* height: 38px !important; */
-  /* line-height: 24px; */
-  /* resize: none;
-  scrollbar-width: none;
-  -ms-overflow-style: none */
 }
 .input-message::-webkit-scrollbar{
   display: none;
-}
-.emoji-toggle{
-  top: 50%;
-  left: 10px;
-  transform: translate(0, -50%);
-  font-size: 20px;
-  color: #9c9c9c;
-  cursor: pointer;
 }
 .send-message{
   background-color: #fff;
@@ -37,6 +46,35 @@
 }
 .send-message i{
   font-size: 24px;
+  color: #9c9c9c;
+  cursor: pointer;
+}
+
+.chat-features .btn-toggle{
+  font-size: 20px;
+  color: #9c9c9c;
+  cursor: pointer;
+}
+.gif-toggle{
+  
+}
+.gif-picker-box{
+  width: fit-content;
+}
+.gif-picker-box{
+  position: absolute;
+  bottom: 90px;
+}
+
+.image-toggle{
+  
+}
+
+.emoji-toggle{
+  top: 50%;
+  left: 10px;
+  transform: translate(0, -50%);
+  font-size: 20px;
   color: #9c9c9c;
   cursor: pointer;
 }
@@ -48,8 +86,8 @@ em-emoji-picker{
 
 /* scrollbar  */
 ::-webkit-scrollbar {
-  width: 13px;
-  height: 13px;
+  width: 5px;
+  height: 5px;
 }
 /* Track */
 ::-webkit-scrollbar-track {
