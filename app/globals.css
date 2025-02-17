@@ -1,6 +1,6 @@
-/* *{
-  opacity: 0.9;
-} */
+.form-control:focus{
+  box-shadow: none;
+}
 .main {
   max-width: 480px;
   margin: 0 auto;
@@ -10,11 +10,12 @@
 }
 
 .main .messages{
-  height: calc(100dvh - 80px);
+  height: calc(100dvh - 100px);
   overflow-y: auto;
 }
 .main .chatbox{
-  height: 80px;
+  height: 100px;
+  padding-top: 15px;
   /* border-top: 1px solid #f1f1f1; */
 }
 .main .message{
@@ -22,30 +23,31 @@
 }
 .main .message-text{
   color: #444;
-  /* color: #ddd; */
-  background-color: #fff;
+  background-color: #f0f0f0;
 }
 .main .me .message-text{
-  color: #fff;
-  background-color: rgb(41, 52, 212);
+  color: #081b3a;
+  background-color: #dbebff;
 }
 .main .messages .message-time{
-  font-size: 11px;
+  font-size: 10px;
+  font-weight: 500;
   color: #9c9c9c;
 }
 
 .main .message-image{
-  width: 50%;
+  max-width: 50%;
 }
 
 .input-message{
   padding-left: 40px;
+  height: 38px;
+  font-size: 14px;
 }
 .input-message::-webkit-scrollbar{
   display: none;
 }
 .send-message{
-  background-color: #fff;
   border: 0;
 }
 .send-message i{

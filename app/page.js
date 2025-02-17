@@ -174,7 +174,7 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      <div className="main">
+      <div className="main bg-white">
         <div className="messages px-4 py-2">
           {messages.map((msg, index) => (
             <div
@@ -182,7 +182,7 @@ export default function Home() {
               className={`message mt-3 ${msg.sender === currentUser ? 'me text-end' : ''}`}
             >
               {msg.text && (
-                <div className="message-text d-inline-block shadow py-2 px-2 rounded text-start">
+                <div className="message-text d-inline-block py-2 px-3 rounded text-start">
                   {msg.text}
                   <div className="message-time mt-1">
                     {new Date(msg.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false })}
@@ -200,7 +200,7 @@ export default function Home() {
               )}
 
               {msg.image && (
-                <div className="message-image mt-2 text-start d-inline-block">
+                <div className="message-image mt-2 text-start d-inline-block rounded">
                   <img src={msg.image} alt="Uploaded" className="img-fluid rounded" loading="lazy"/>
                   <div className="message-time mt-1">
                     {new Date(msg.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false })}
@@ -247,7 +247,7 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="col-2 px-0 d-md-none">
-                  <button className="text-center h-100 send-message" onClick={handleSendMessage}>
+                  <button className="text-center h-100 bg-white send-message" onClick={handleSendMessage}>
                     <i className="bi bi-send"></i>
                   </button>
                 </div>
