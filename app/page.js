@@ -5,9 +5,8 @@ import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import { useState, useRef, useEffect } from "react";
 
-import { storage, database } from "./firebase";
+import { database } from "./firebase";
 import { ref as dbRef, push, query, onValue, limitToLast, orderByChild } from "firebase/database";
-import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 
 import GifPicker from 'gif-picker-react';
 
@@ -59,23 +58,75 @@ export default function Home() {
     setShowGifPicker(false);
   }
 
+  const resizeImage = (file, maxWidth, maxHeight, quality = 0.7) => {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth || height > maxHeight) {
+                    const scaleFactor = Math.min(maxWidth / width, maxHeight / height);
+                    width *= scaleFactor;
+                    height *= scaleFactor;
+                }
+
+                const canvas = document.createElement("canvas");
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, "image/jpeg", quality);
+            };
+        };
+    });
+  };
+
   const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return; 
-  
+    let file = event.target.files[0];
+    if (!file) return;
+
+    const API_KEY = "cf45a8172c3f0fe63ecf7f03ca62b8e4";
+
     try {
-      const fileRef = storageRef(storage, `images/${Date.now()}_${file.name}`);
-      await uploadBytes(fileRef, file);
-      const imageUrl = await getDownloadURL(fileRef);
-  
-      const messagesRef = dbRef(database, "messages");
-      push(messagesRef, { image: imageUrl, sender: currentUser, timestamp: Date.now() });
-  
-      console.log("Ảnh đã tải lên:", imageUrl);
+
+        const resizedFile = await resizeImage(file, 800, 800, 0.7);
+
+        const formData = new FormData();
+        formData.append("image", resizedFile, "resized.jpg");
+
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            const imageUrl = result.data.url;
+            console.log("Ảnh đã tải lên:", imageUrl);
+            
+            const messagesRef = dbRef(database, "messages");
+            push(messagesRef, {
+                image: imageUrl,
+                sender: currentUser,
+                timestamp: Date.now()
+            });
+        } else {
+            console.error("Lỗi tải ảnh lên ImgBB:", result.error);
+        }
     } catch (error) {
-      console.error("Lỗi tải ảnh:", error);
+        console.error("Lỗi khi upload ảnh:", error);
     }
   };
+
 
   useEffect(() => {
     const userCookie = document.cookie.split('; ').find((row) => row.startsWith('hcuser='))?.split('=')[1];
@@ -141,7 +192,7 @@ export default function Home() {
 
               {msg.gif && (
                 <div className="message-gif mt-2 text-start d-inline-block">
-                  <img src={msg.gif} alt="GIF" className="img-fluid rounded" />
+                  <img src={msg.gif} alt="GIF" className="img-fluid rounded" loading="lazy"/>
                   <div className="message-time mt-1">
                     {new Date(msg.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false })}
                   </div>
@@ -150,7 +201,10 @@ export default function Home() {
 
               {msg.image && (
                 <div className="message-image mt-2 text-start d-inline-block">
-                  <img src={msg.image} alt="Uploaded" className="img-fluid rounded" />
+                  <img src={msg.image} alt="Uploaded" className="img-fluid rounded" loading="lazy"/>
+                  <div className="message-time mt-1">
+                    {new Date(msg.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false })}
+                  </div>
                 </div>
               )}
 
@@ -172,7 +226,7 @@ export default function Home() {
               <div className="border rounded px-2 btn-toggle gif-toggle" onClick={() => setShowGifPicker(!showGifPicker)}>
                 <i className="bi bi-filetype-gif"></i>
               </div>
-              <div className="border rounded px-2 btn-toggle image-toggle d-none" onClick={() => document.getElementById("imageUpload").click()}>
+              <div className="border rounded px-2 btn-toggle image-toggle" onClick={() => document.getElementById("imageUpload").click()}>
                 <i className="bi bi-image"></i>
                 <input type="file" id="imageUpload" className="d-none" accept="image/*" onChange={handleImageUpload} />
               </div>

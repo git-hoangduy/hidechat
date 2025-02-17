@@ -25,13 +25,17 @@
   /* color: #ddd; */
   background-color: #fff;
 }
-/* .main .me .message-text{
+.main .me .message-text{
   color: #fff;
   background-color: rgb(41, 52, 212);
-} */
+}
 .main .messages .message-time{
   font-size: 11px;
   color: #9c9c9c;
+}
+
+.main .message-image{
+  width: 50%;
 }
 
 .input-message{
