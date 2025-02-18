@@ -30,7 +30,7 @@ export default function LoginPage() {
 
   return (
     <div>
-      <div className="main">
+      <div className="main px-2">
         <form onSubmit={handleLogin} className='mt-3'>
           {error && <p className='text-danger'>{error}</p>}
           <input
