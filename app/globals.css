@@ -1,6 +1,6 @@
-/* *{
+*{
   opacity: 0.9;
-} */
+}
 *:focus{
   box-shadow: none !important;
 }
@@ -44,9 +44,9 @@
 
 .input-message {
   padding-left: 40px;
-  padding-top: 8px;
+  /* padding-top: 8px; */
   height: 38px;
-  font-size: 14px;
+  font-size: 16px;
   border-top-left-radius: 50rem;
   border-bottom-left-radius: 50rem;
   border-right: none;
