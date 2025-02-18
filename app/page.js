@@ -145,6 +145,9 @@ export default function Home() {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("upload_preset", UPLOAD_PRESET);
+        formData.append("folder", "hidechat");
+        formData.append("quality", "auto");
+        formData.append("fetch_format", "auto");
 
         // Upload lên Cloudinary
         const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
@@ -171,8 +174,6 @@ export default function Home() {
         console.error("Error when uploading photos:", error);
     }
   };
-
-  
 
   useEffect(() => {
     const userCookie = document.cookie.split('; ').find((row) => row.startsWith('hcuser='))?.split('=')[1];
@@ -247,7 +248,12 @@ export default function Home() {
 
               {msg.image && (
                 <div className="message-image mt-2 text-start d-inline-block rounded">
-                  <img src={msg.image} alt="Uploaded" className="img-fluid rounded" loading="lazy"/>
+                  <img 
+                    src={msg.image.replace("/upload/", "/upload/w_300,h_300,c_limit,q_auto,f_auto/")}  
+                    alt="Uploaded" 
+                    className="img-fluid rounded" 
+                    loading="lazy"
+                  />
                   <div className="message-time mt-1">
                     {new Date(msg.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false })}
                   </div>
@@ -285,13 +291,6 @@ export default function Home() {
                 </button>
               </div>
             </div>
-            {/* <div className="position-relative px-3">
-              <input type="text" className="form-control rounded-pill input-message" placeholder="" spellCheck="false" value={message} onChange={handleInputChange} onKeyDown={handleKeyDown}/>
-              <i className={'bi '+(showEmojiPicker ? 'bi-x-circle' : 'bi-emoji-smile' ) + ' position-absolute emoji-toggle'} onClick={() => setShowEmojiPicker(!showEmojiPicker)}></i>
-              <button className="text-center h-100 bg-white send-message" onClick={handleSendMessage}>
-                <i className="bi bi-send"></i>
-              </button>
-            </div> */}
             {showEmojiPicker && (
                 <div ref={emojiPickerRef} className="emoji-picker-box">
                   <Picker data={data} onEmojiSelect={handleEmojiSelect} />
