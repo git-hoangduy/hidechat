@@ -26,10 +26,15 @@ export default function Home() {
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
-      if (message.trim()) {
-        const messagesRef = dbRef(database, 'messages');
-        push(messagesRef, { text: message, sender: currentUser, timestamp: Date.now() });
-        setMessage("");
+      if (event.shiftKey) {
+        // setMessage(prev => prev + "\n");
+      } else {
+        if (message.trim()) {
+            const messagesRef = dbRef(database, 'messages');
+            push(messagesRef, { text: message, sender: currentUser, timestamp: Date.now() });
+            setMessage("");
+        }
+        event.preventDefault();
       }
     }
   }
@@ -58,60 +63,100 @@ export default function Home() {
     setShowGifPicker(false);
   }
 
-  const resizeImage = (file, maxWidth, maxHeight, quality = 0.7) => {
-    return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (event) => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                let width = img.width;
-                let height = img.height;
+  // const resizeImage = (file, maxWidth, maxHeight, quality = 0.7) => {
+  //   return new Promise((resolve) => {
+  //       const reader = new FileReader();
+  //       reader.readAsDataURL(file);
+  //       reader.onload = (event) => {
+  //           const img = new Image();
+  //           img.src = event.target.result;
+  //           img.onload = () => {
+  //               let width = img.width;
+  //               let height = img.height;
 
-                if (width > maxWidth || height > maxHeight) {
-                    const scaleFactor = Math.min(maxWidth / width, maxHeight / height);
-                    width *= scaleFactor;
-                    height *= scaleFactor;
-                }
+  //               if (width > maxWidth || height > maxHeight) {
+  //                   const scaleFactor = Math.min(maxWidth / width, maxHeight / height);
+  //                   width *= scaleFactor;
+  //                   height *= scaleFactor;
+  //               }
 
-                const canvas = document.createElement("canvas");
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext("2d");
-                ctx.drawImage(img, 0, 0, width, height);
+  //               const canvas = document.createElement("canvas");
+  //               canvas.width = width;
+  //               canvas.height = height;
+  //               const ctx = canvas.getContext("2d");
+  //               ctx.drawImage(img, 0, 0, width, height);
 
-                canvas.toBlob((blob) => {
-                    resolve(blob);
-                }, "image/jpeg", quality);
-            };
-        };
-    });
-  };
+  //               canvas.toBlob((blob) => {
+  //                   resolve(blob);
+  //               }, "image/jpeg", quality);
+  //           };
+  //       };
+  //   });
+  // };
+  
+  // Imgbb upload
+  // const handleImageUpload = async (event) => {
+  //   let file = event.target.files[0];
+  //   if (!file) return;
 
+  //   const API_KEY = "cf45a8172c3f0fe63ecf7f03ca62b8e4";
+
+  //   try {
+
+  //       const resizedFile = await resizeImage(file, 800, 800, 0.7);
+
+  //       const formData = new FormData();
+  //       formData.append("image", resizedFile, "resized.jpg");
+
+  //       const response = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
+  //           method: "POST",
+  //           body: formData
+  //       });
+
+  //       const result = await response.json();
+
+  //       if (result.success) {
+  //           const imageUrl = result.data.url;
+  //           console.log("Ảnh đã tải lên:", imageUrl);
+            
+  //           const messagesRef = dbRef(database, "messages");
+  //           push(messagesRef, {
+  //               image: imageUrl,
+  //               sender: currentUser,
+  //               timestamp: Date.now()
+  //           });
+  //       } else {
+  //           console.error("Lỗi tải ảnh lên ImgBB:", result.error);
+  //       }
+  //   } catch (error) {
+  //       console.error("Lỗi khi upload ảnh:", error);
+  //   }
+  // };
+
+  // Cloudinary upload
   const handleImageUpload = async (event) => {
     let file = event.target.files[0];
     if (!file) return;
 
-    const API_KEY = "cf45a8172c3f0fe63ecf7f03ca62b8e4";
+    const CLOUD_NAME = "dsytquwvk";
+    const UPLOAD_PRESET = "ml_default";
 
     try {
-
-        const resizedFile = await resizeImage(file, 800, 800, 0.7);
-
         const formData = new FormData();
-        formData.append("image", resizedFile, "resized.jpg");
+        formData.append("file", file);
+        formData.append("upload_preset", UPLOAD_PRESET);
 
-        const response = await fetch(`https://api.imgbb.com/1/upload?key=${API_KEY}`, {
+        // Upload lên Cloudinary
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
             method: "POST",
             body: formData
         });
 
         const result = await response.json();
 
-        if (result.success) {
-            const imageUrl = result.data.url;
-            console.log("Ảnh đã tải lên:", imageUrl);
+        if (result.secure_url) {
+            const imageUrl = result.secure_url;
+            console.log("Photo uploaded:", imageUrl);
             
             const messagesRef = dbRef(database, "messages");
             push(messagesRef, {
@@ -120,13 +165,14 @@ export default function Home() {
                 timestamp: Date.now()
             });
         } else {
-            console.error("Lỗi tải ảnh lên ImgBB:", result.error);
+            console.error("Error uploading photos to Cloudinary:", result.error);
         }
     } catch (error) {
-        console.error("Lỗi khi upload ảnh:", error);
+        console.error("Error when uploading photos:", error);
     }
   };
 
+  
 
   useEffect(() => {
     const userCookie = document.cookie.split('; ').find((row) => row.startsWith('hcuser='))?.split('=')[1];
@@ -207,14 +253,6 @@ export default function Home() {
                   </div>
                 </div>
               )}
-
-              {/* <div className={`message-text d-inline-block shadow py-2 px-2 rounded text-start`}>
-                {msg.text}
-                <div className="message-time mt-1">
-                  {new Date(msg.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false })}
-                </div>
-              </div>
-              */}
               
             </div>
           ))}
@@ -233,31 +271,32 @@ export default function Home() {
             </div>
             {showGifPicker && (
               <div ref={gifPickerRef} className="gif-picker-box">
-                <GifPicker tenorApiKey={"AIzaSyCLDuxIJPnbJXVNFHwgXuVMrT4esJgApD8"} onGifClick={handleGifSelect}/>
+                <GifPicker tenorApiKey={"AIzaSyCLDuxIJPnbJXVNFHwgXuVMrT4esJgApD8"} autoFocusSearch={false} onGifClick={handleGifSelect}/>
               </div>
             )}
           </div>
           <div className="chatbox-bottom pt-1">
-            <div className="container-fluid">
-              <div className="row">
-                <div className="col-10 col-md-12">
-                  <div className="position-relative">
-                      <input type="text" className="form-control rounded-pill input-message" placeholder="" spellCheck="false" value={message} onChange={handleInputChange} onKeyDown={handleKeyDown}/>
-                      <i className={'bi '+(showEmojiPicker ? 'bi-x-circle' : 'bi-emoji-smile' ) + ' position-absolute emoji-toggle'} onClick={() => setShowEmojiPicker(!showEmojiPicker)}></i>
-                  </div>
-                </div>
-                <div className="col-2 px-0 d-md-none">
-                  <button className="text-center h-100 bg-white send-message" onClick={handleSendMessage}>
-                    <i className="bi bi-send"></i>
-                  </button>
-                </div>
+            <div className="position-relative px-3">
+              <div className="input-group">
+                <textarea className="form-control input-message" spellCheck="false" onChange={handleInputChange} onKeyDown={handleKeyDown} value={message}></textarea>
+                <i className={'bi '+(showEmojiPicker ? 'bi-x-circle' : 'bi-emoji-smile' ) + ' position-absolute emoji-toggle'} onClick={() => setShowEmojiPicker(!showEmojiPicker)}></i>
+                <button className="text-center send-message" onClick={handleSendMessage}>
+                  <i className="bi bi-send"></i>
+                </button>
               </div>
-              {showEmojiPicker && (
+            </div>
+            {/* <div className="position-relative px-3">
+              <input type="text" className="form-control rounded-pill input-message" placeholder="" spellCheck="false" value={message} onChange={handleInputChange} onKeyDown={handleKeyDown}/>
+              <i className={'bi '+(showEmojiPicker ? 'bi-x-circle' : 'bi-emoji-smile' ) + ' position-absolute emoji-toggle'} onClick={() => setShowEmojiPicker(!showEmojiPicker)}></i>
+              <button className="text-center h-100 bg-white send-message" onClick={handleSendMessage}>
+                <i className="bi bi-send"></i>
+              </button>
+            </div> */}
+            {showEmojiPicker && (
                 <div ref={emojiPickerRef} className="emoji-picker-box">
                   <Picker data={data} onEmojiSelect={handleEmojiSelect} />
                 </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </div>

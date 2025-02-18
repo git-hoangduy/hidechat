@@ -1,5 +1,8 @@
-.form-control:focus{
-  box-shadow: none;
+/* *{
+  opacity: 0.9;
+} */
+*:focus{
+  box-shadow: none !important;
 }
 .main {
   max-width: 480px;
@@ -39,23 +42,37 @@
   max-width: 50%;
 }
 
-.input-message{
+.input-message {
   padding-left: 40px;
+  padding-top: 8px;
   height: 38px;
   font-size: 14px;
+  border-top-left-radius: 50rem;
+  border-bottom-left-radius: 50rem;
+  border-right: none;
+  resize: none;
 }
+.input-message:focus{
+  border-color: #dee2e6;
+}
+/* .input-message:focus + .send-message{
+  border-color: #cacaca !important;
+} */
 .input-message::-webkit-scrollbar{
   display: none;
 }
 .send-message{
-  border: 0;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-top-right-radius: 50rem;
+  border-bottom-right-radius: 50rem;
+  padding: 0 10px;
 }
 .send-message i{
-  font-size: 24px;
+  font-size: 20px;
   color: #9c9c9c;
   cursor: pointer;
 }
-
 .chat-features .btn-toggle{
   font-size: 20px;
   color: #9c9c9c;
@@ -78,11 +95,12 @@
 
 .emoji-toggle{
   top: 50%;
-  left: 10px;
+  left: 14px;
   transform: translate(0, -50%);
   font-size: 20px;
   color: #9c9c9c;
   cursor: pointer;
+  z-index: 5;
 }
 em-emoji-picker{
   position: absolute;
