@@ -1,6 +1,6 @@
-*{
+/* *{
   opacity: 0.9;
-}
+} */
 *:focus{
   box-shadow: none !important;
 }
@@ -8,8 +8,7 @@
   max-width: 480px;
   margin: 0 auto;
   height: 100dvh;
-  /* padding-left: 10px;
-  padding-right: 10px; */
+  position: relative;
 }
 
 .main .messages{
@@ -58,9 +57,9 @@
 /* .input-message:focus + .send-message{
   border-color: #cacaca !important;
 } */
-.input-message::-webkit-scrollbar{
+/* .input-message::-webkit-scrollbar{
   display: none;
-}
+} */
 .send-message{
   background-color: #fff;
   border: 1px solid #dee2e6;
@@ -83,10 +82,9 @@
 }
 .gif-picker-box{
   width: fit-content;
-}
-.gif-picker-box{
   position: absolute;
   bottom: 90px;
+  left: 1rem;
 }
 
 .image-toggle{
@@ -105,6 +103,7 @@
 em-emoji-picker{
   position: absolute;
   bottom: 90px;
+  left: 1rem;
   box-shadow: rgba(67, 71, 85, 0.27) 0px 0px 0.25em, rgba(90, 125, 188, 0.05) 0px 0.25em 1em;
 }
 
